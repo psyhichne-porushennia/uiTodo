@@ -24,13 +24,13 @@ MainWindow::MainWindow(TaskManager& manager, QWidget* parent)
 
 void MainWindow::buildUi() {
     auto* central = new QWidget(this);
-    central->setObjectName("Root");
+    central->setObjectName("Root");                         // ← ДОДАНО
     auto* root = new QVBoxLayout(central);
     root->setContentsMargins(0,0,0,0);
     root->setSpacing(0);
     root->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
-    // ── тонка верхня смужка ─────────────────────────────────────
+    // ── тонка верхня смужка (мін/клоуз) ─────────────────────────
     m_titleBar = new QFrame(central);
     m_titleBar->setObjectName("TitleBar");
     m_titleBar->setFixedHeight(24);
@@ -62,7 +62,7 @@ void MainWindow::buildUi() {
     connect(m_btnClose, &QToolButton::clicked, this, [this]{ close(); });
     root->addWidget(m_titleBar);
 
-    // ── ХЕДЕР (завжди під смужкою) ──────────────────────────────
+    // ── ХЕДЕР: окремо, фіксовано ПІД смужкою ────────────────────
     m_header = new QFrame(central);
     m_header->setObjectName("PinnedHeader");
     auto* hLay = new QHBoxLayout(m_header);
@@ -78,18 +78,17 @@ void MainWindow::buildUi() {
     hLay->addWidget(m_input, 1);
     hLay->addWidget(m_addBtn);
 
-    root->addWidget(m_header, 0, Qt::AlignTop);
+    root->addWidget(m_header, 0, Qt::AlignTop);   // ← прибиваємо до верху
 
-    // ── АКТИВНІ ─────────────────────────────────────────────────
+    // ── АКТИВНІ: тільки список (без хедера всередині) ───────────
     m_activeArea = new QFrame(central);
     m_activeArea->setObjectName("ActiveArea");
-    m_activeArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);   // ★ тягнемо вниз
     auto* actLay = new QVBoxLayout(m_activeArea);
     actLay->setContentsMargins(10,0,10,0);
     actLay->setSpacing(0);
 
     m_active = new QListWidget(m_activeArea);
-    m_active->setObjectName("ActiveList");
+    m_active->setObjectName("ActiveList");        // ← ДОДАНО
     m_active->setFrameShape(QFrame::NoFrame);
     m_active->setSpacing(0);
     m_active->setSelectionMode(QAbstractItemView::NoSelection);
@@ -99,13 +98,12 @@ void MainWindow::buildUi() {
         "QListWidget::item:selected{ background: transparent; }"
         "QListWidget::item:hover{ background: transparent; }"
         );
-    m_active->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_active->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_active->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_active->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     actLay->addWidget(m_active);
-
-    root->addWidget(m_activeArea, 1);   // ★ даємо stretch=1 (замість AlignTop)
+    root->addWidget(m_activeArea, 0, Qt::AlignTop);
 
     // ── АРХІВ ───────────────────────────────────────────────────
     m_archiveArea = new QFrame(central);
@@ -115,7 +113,7 @@ void MainWindow::buildUi() {
     archLay->setSpacing(0);
 
     m_archived = new QListWidget(m_archiveArea);
-    m_archived->setObjectName("ArchivedList");
+    m_archived->setObjectName("ArchivedList");    // ← ДОДАНО
     m_archived->setFrameShape(QFrame::NoFrame);
     m_archived->setSpacing(0);
     m_archived->setSelectionMode(QAbstractItemView::NoSelection);
@@ -125,7 +123,7 @@ void MainWindow::buildUi() {
         "QListWidget::item:selected{ background: transparent; }"
         "QListWidget::item:hover{ background: transparent; }"
         );
-    m_archived->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_archived->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_archived->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_archived->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
@@ -138,8 +136,7 @@ void MainWindow::buildUi() {
 
     archLay->addWidget(m_archived);
     archLay->addWidget(bottom);
-
-    root->addWidget(m_archiveArea, 0);  // ★ архів не тягнеться; коли прихований — білий ActiveArea заповнить низ
+    root->addWidget(m_archiveArea, 0, Qt::AlignTop);
 
     setCentralWidget(central);
 
@@ -147,7 +144,6 @@ void MainWindow::buildUi() {
     connect(m_addBtn, &QPushButton::clicked, this, &MainWindow::onAdd);
     connect(m_input,  &QLineEdit::returnPressed, this, &MainWindow::onAdd);
 }
-
 
 
 int MainWindow::listContentHeight(QListWidget* list) const {
@@ -312,18 +308,18 @@ bool MainWindow::nativeEvent(const QByteArray& type, void* msg, qintptr* result)
 
 
 
-    void MainWindow::addTaskUi(QListWidget* list, const Task& t) {
-        auto* item = new QListWidgetItem();
-        auto* w = new TaskItemWidget(t, list);
-        item->setSizeHint(w->sizeHint());
-        list->addItem(item);
-        list->setItemWidget(item, w);
+void MainWindow::addTaskUi(QListWidget* list, const Task& t) {
+    auto* item = new QListWidgetItem();
+    auto* w = new TaskItemWidget(t, list);
+    item->setSizeHint(w->sizeHint());
+    list->addItem(item);
+    list->setItemWidget(item, w);
 
-        connect(w, &TaskItemWidget::toggledDone,  this, &MainWindow::onItemToggled);
-        connect(w, &TaskItemWidget::textEdited,   this, &MainWindow::onItemEdited);
-        connect(w, &TaskItemWidget::archiveRequested, this, &MainWindow::onItemArchive);
-        connect(w, &TaskItemWidget::deleteRequested,  this, &MainWindow::onItemDelete);
-    }
+    connect(w, &TaskItemWidget::toggledDone,  this, &MainWindow::onItemToggled);
+    connect(w, &TaskItemWidget::textEdited,   this, &MainWindow::onItemEdited);
+    connect(w, &TaskItemWidget::archiveRequested, this, &MainWindow::onItemArchive);
+    connect(w, &TaskItemWidget::deleteRequested,  this, &MainWindow::onItemDelete);
+}
 
 
 
@@ -368,4 +364,3 @@ void MainWindow::onItemDelete(size_t id) {
     m_manager.saveTasks();
     reload();
 }
-

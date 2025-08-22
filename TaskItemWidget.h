@@ -4,8 +4,9 @@
 #include <QLineEdit>
 #include <QToolButton>
 #include <QMenu>
+#include <QEvent>
+#include <QSpacerItem>
 #include "App.h"
-#include "QSpacerItem"
 
 class TaskItemWidget : public QWidget {
     Q_OBJECT
@@ -13,6 +14,9 @@ public:
     explicit TaskItemWidget(const Task& task, QWidget* parent = nullptr);
     size_t taskId() const { return m_taskId; }
     void syncFrom(const Task& t); // оновити віджет із моделі
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 signals:
     void toggledDone(size_t taskId, bool done);
@@ -31,4 +35,7 @@ private:
 
     void buildUi(const Task& task);
     void applyStyle();
+
+    void styleMenu();      // стилізація QMenu (округлення + тінь)
+    void updateMenuMask(); // оновлення маски меню після Show/Resize
 };
