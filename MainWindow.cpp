@@ -178,6 +178,10 @@ void MainWindow::applyPalette() {
         /* глобально */
         QWidget { color: black; }
 
+        /* центральний кореневий віджет — завжди білий,
+           щоб не проступав колір Window між секціями */
+        QWidget#Root { background: #ffffff; }
+
         /* верхня смужка лишається ніжно-сірою */
         #TitleBar { background: #f6f7fb; }
 
@@ -201,7 +205,7 @@ void MainWindow::applyPalette() {
         QListWidget#ArchivedList::item:selected,
         QListWidget#ArchivedList::item:hover { background: transparent; }
 
-        /* білі округлі контролі в хедері (і глобально) */
+        /* білі округлі контролі */
         QPushButton {
             background:#ffffff; color:black;
             border:1px solid #e7e7ea; border-radius:10px;
@@ -222,7 +226,7 @@ void MainWindow::applyPalette() {
         #TitleMin:hover   { background:#eaeaea; border-radius:6px; }
         #TitleClose:hover { background:#e81123; color:white; border-radius:6px; }
 
-        /* нульові зовнішні відступи секцій, щоб не було «смуг» між ними */
+        /* без «зазорів» між секціями */
         QFrame#PinnedHeader, QFrame#ActiveArea, QFrame#ArchiveArea { margin:0; }
     )");
 }
