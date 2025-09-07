@@ -31,6 +31,8 @@ private:
     QToolButton* m_btnMin{};      // кнопка згортання
     QToolButton* m_btnClose{};    // кнопка закриття
     QFrame*      m_header{};   // закріплений хедер
+    QFrame*      m_archiveFiller = nullptr;
+
 
 
     enum class Filter { All, Active, Done, Archived };

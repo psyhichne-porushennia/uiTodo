@@ -233,30 +233,61 @@ void MainWindow::applyPalette() {
 
 
 void MainWindow::reload() {
+    // тимчасово вимкнемо промальовку
+    m_active->setUpdatesEnabled(false);
+    m_archived->setUpdatesEnabled(false);
+
     m_active->clear();
     m_archived->clear();
 
     const auto all = m_manager.getTasks();
-    int archivedCount = 0;
+    int archCnt = 0;
 
     for (const auto& t : all) {
         if (t.getStatus() == archived) {
             addTaskUi(m_archived, t);
-            ++archivedCount;
+            ++archCnt;
         } else {
-            addTaskUi(m_active, t);   // показуємо всі неархівні (toDO і done)
+            addTaskUi(m_active, t);
         }
     }
 
-    m_archiveArea->setVisible(archivedCount > 0);
+    m_archiveArea->setVisible(archCnt > 0);
 
-    m_active->setFixedHeight(listContentHeight(m_active));
-    m_archived->setFixedHeight(listContentHeight(m_archived));
+    // висота контенту списків (без контейнерів)
+    auto contentH = [](QListWidget* w) -> int {
+        int n = w->count();
+        if (!n) return 0;
+        int h = 0;
+        for (int i = 0; i < n; ++i) h += w->sizeHintForRow(i);
+        return h + w->frameWidth() * 2;
+    };
+    m_active->setFixedHeight(contentH(m_active));
+    m_archived->setFixedHeight(contentH(m_archived));
 
-    const int cap = QGuiApplication::primaryScreen()->availableGeometry().height() * 85 / 100;
-    adjustSize();
-    if (height() > cap) resize(width(), cap);
+    // КЛЮЧ: хто забирає надлишок висоти
+    if (auto* root = qobject_cast<QVBoxLayout*>(centralWidget()->layout())) {
+        if (archCnt > 0) {
+            // є архів → тягнемо сірий низ, щоб не було білої смужки
+            m_archiveArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            m_activeArea ->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+            root->setStretchFactor(m_activeArea, 0);
+            root->setStretchFactor(m_archiveArea, 1);
+        } else {
+            // архів порожній → тягнеться біла активна секція
+            m_archiveArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+            m_activeArea ->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            root->setStretchFactor(m_activeArea, 1);
+            root->setStretchFactor(m_archiveArea, 0);
+        }
+        root->invalidate();
+        root->activate();
+    }
+
+    m_archived->setUpdatesEnabled(true);
+    m_active->setUpdatesEnabled(true);
 }
+
 
 #ifdef Q_OS_WIN
 bool MainWindow::nativeEvent(const QByteArray& type, void* msg, qintptr* result) {
