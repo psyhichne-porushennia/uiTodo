@@ -174,17 +174,10 @@ void MainWindow::applyPalette() {
     qApp->setPalette(p);
 
     setStyleSheet(R"(
-        /* глобально */
         QWidget { color: black; }
-
-        /* центральний кореневий віджет — завжди білий,
-           щоб не проступав колір Window між секціями */
         QWidget#Root { background: #ffffff; }
-
-        /* верхня смужка лишається ніжно-сірою */
         #TitleBar { background: #f6f7fb; }
 
-        /* хедер + активні задачі — білі площини */
         #PinnedHeader { background: #ffffff; border: none; }
         #ActiveArea   { background: #ffffff; border: none; }
         QListWidget#ActiveList {
@@ -194,17 +187,15 @@ void MainWindow::applyPalette() {
         QListWidget#ActiveList::item:selected,
         QListWidget#ActiveList::item:hover { background: transparent; }
 
-        /* архів — сіра площина */
         #ArchiveArea   { background: #eeeeee; border: none; }
         #ArchiveBottom { background: #eeeeee; border: none; }
         QListWidget#ArchivedList {
-            background: transparent;  /* щоб просвічував сірий ArchiveArea */
+            background: transparent;
             border: none;
         }
         QListWidget#ArchivedList::item:selected,
         QListWidget#ArchivedList::item:hover { background: transparent; }
 
-        /* білі округлі контролі */
         QPushButton {
             background:#ffffff; color:black;
             border:1px solid #e7e7ea; border-radius:10px;
@@ -220,12 +211,10 @@ void MainWindow::applyPalette() {
         }
         QLineEdit:focus { border:1px solid #d0d0ff; }
 
-        /* кнопки смужки заголовка */
         #TitleMin, #TitleClose { border:none; background:transparent; padding:0; }
         #TitleMin:hover   { background:#eaeaea; border-radius:6px; }
         #TitleClose:hover { background:#e81123; color:white; border-radius:6px; }
 
-        /* без «зазорів» між секціями */
         QFrame#PinnedHeader, QFrame#ActiveArea, QFrame#ArchiveArea { margin:0; }
     )");
 }
