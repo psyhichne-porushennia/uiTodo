@@ -4,8 +4,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QStyle>
 #include <QPainterPath>
-#include <QTimer>     // ⬅ додано
-#include <QEvent>     // ⬅ додано
+#include <QTimer>
+#include <QEvent>
 
 TaskItemWidget::TaskItemWidget(const Task& task, QWidget* parent)
     : QWidget(parent) {
@@ -88,8 +88,6 @@ void TaskItemWidget::styleMenu() {
     fx->setOffset(0, 3);
     fx->setColor(QColor(0,0,0,55));
     m_menu->setGraphicsEffect(fx);
-
-    // маску оновлюємо при показі/ресайзі
     m_menu->installEventFilter(this);
 }
 

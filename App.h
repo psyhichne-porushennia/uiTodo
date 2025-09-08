@@ -54,7 +54,6 @@ public:
     explicit TaskManager(std::unique_ptr<iTaskRepository> repo)
         : repository{ std::move(repo) } {
         tasks = repository->loadTasks();
-        // гарантуємо унікальні id (на випадок кривих файлів)
         for (size_t i = 0; i < tasks.size(); ++i)
             tasks[i] = Task(i, tasks[i].getText(), tasks[i].getStatus());
     }
@@ -73,5 +72,5 @@ private:
     std::unique_ptr<iTaskRepository> repository;
 
     std::optional<size_t> indexOf(size_t taskID) const;
-    void reassignIds(); // тримаємо id щільними: 0..n-1
+    void reassignIds();
 };

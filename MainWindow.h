@@ -28,9 +28,9 @@ private:
     QPushButton* m_addBtn{};
     QFrame*      m_activeArea{};
     QFrame*      m_titleBar{};
-    QToolButton* m_btnMin{};      // кнопка згортання
-    QToolButton* m_btnClose{};    // кнопка закриття
-    QFrame*      m_header{};   // закріплений хедер
+    QToolButton* m_btnMin{};
+    QToolButton* m_btnClose{};
+    QFrame*      m_header{};
     QFrame*      m_archiveFiller = nullptr;
 
 

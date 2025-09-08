@@ -31,14 +31,13 @@ bool FileRepository::saveTasks(const std::vector<Task>& tasks) {
 std::vector<Task> FileRepository::loadTasks() {
     std::vector<Task> tasks;
     std::ifstream file(filename);
-    if (!file.is_open()) return tasks; // нема файлу — стартуємо порожньо
+    if (!file.is_open()) return tasks;
 
     try {
         nlohmann::json j;
         file >> j;
         tasks = j.get<std::vector<Task>>();
-    } catch (...) {
-        // битий JSON — ігноруємо, стартуємо порожньо
+    } catch (...) {        
         tasks.clear();
     }
     return tasks;
@@ -49,7 +48,6 @@ std::vector<Task> TaskManager::getTasks() const {
 }
 
 void TaskManager::addtask(std::string text) {
-    // обрізаємо пробіли й пропускаємо пусті
     auto notSpace = [](unsigned char c){ return !std::isspace(c); };
     text.erase(text.begin(), std::find_if(text.begin(), text.end(), notSpace));
     while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) text.pop_back();

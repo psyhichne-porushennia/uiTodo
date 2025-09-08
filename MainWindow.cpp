@@ -24,13 +24,13 @@ MainWindow::MainWindow(TaskManager& manager, QWidget* parent)
 
 void MainWindow::buildUi() {
     auto* central = new QWidget(this);
-    central->setObjectName("Root");                         // ← ДОДАНО
+    central->setObjectName("Root");
     auto* root = new QVBoxLayout(central);
     root->setContentsMargins(0,0,0,0);
     root->setSpacing(0);
     root->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
-    // ── тонка верхня смужка (мін/клоуз) ─────────────────────────
+    // min /close
     m_titleBar = new QFrame(central);
     m_titleBar->setObjectName("TitleBar");
     m_titleBar->setFixedHeight(24);
@@ -62,7 +62,7 @@ void MainWindow::buildUi() {
     connect(m_btnClose, &QToolButton::clicked, this, [this]{ close(); });
     root->addWidget(m_titleBar);
 
-    // ── ХЕДЕР: окремо, фіксовано ПІД смужкою ────────────────────
+    // ── header
     m_header = new QFrame(central);
     m_header->setObjectName("PinnedHeader");
     auto* hLay = new QHBoxLayout(m_header);
@@ -78,9 +78,9 @@ void MainWindow::buildUi() {
     hLay->addWidget(m_input, 1);
     hLay->addWidget(m_addBtn);
 
-    root->addWidget(m_header, 0, Qt::AlignTop);   // ← прибиваємо до верху
+    root->addWidget(m_header, 0, Qt::AlignTop);
 
-    // ── АКТИВНІ: тільки список (без хедера всередині) ───────────
+    // active
     m_activeArea = new QFrame(central);
     m_activeArea->setObjectName("ActiveArea");
     auto* actLay = new QVBoxLayout(m_activeArea);
@@ -88,7 +88,7 @@ void MainWindow::buildUi() {
     actLay->setSpacing(0);
 
     m_active = new QListWidget(m_activeArea);
-    m_active->setObjectName("ActiveList");        // ← ДОДАНО
+    m_active->setObjectName("ActiveList");
     m_active->setFrameShape(QFrame::NoFrame);
     m_active->setSpacing(0);
     m_active->setSelectionMode(QAbstractItemView::NoSelection);
@@ -105,7 +105,7 @@ void MainWindow::buildUi() {
     actLay->addWidget(m_active);
     root->addWidget(m_activeArea, 0, Qt::AlignTop);
 
-    // ── АРХІВ ───────────────────────────────────────────────────
+    // archive
     m_archiveArea = new QFrame(central);
     m_archiveArea->setObjectName("ArchiveArea");
     auto* archLay = new QVBoxLayout(m_archiveArea);
@@ -113,7 +113,7 @@ void MainWindow::buildUi() {
     archLay->setSpacing(0);
 
     m_archived = new QListWidget(m_archiveArea);
-    m_archived->setObjectName("ArchivedList");    // ← ДОДАНО
+    m_archived->setObjectName("ArchivedList");
     m_archived->setFrameShape(QFrame::NoFrame);
     m_archived->setSpacing(0);
     m_archived->setSelectionMode(QAbstractItemView::NoSelection);
@@ -140,7 +140,6 @@ void MainWindow::buildUi() {
 
     setCentralWidget(central);
 
-    // дії
     connect(m_addBtn, &QPushButton::clicked, this, &MainWindow::onAdd);
     connect(m_input,  &QLineEdit::returnPressed, this, &MainWindow::onAdd);
 }
@@ -164,8 +163,8 @@ void MainWindow::applyPalette() {
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     QPalette p = qApp->palette();
-    p.setColor(QPalette::Window, QColor("#f6f7fb"));      // фон вікна (видно у верхній смужці)
-    p.setColor(QPalette::Base,   QColor("#ffffff"));      // фон полів/редакторів
+    p.setColor(QPalette::Window, QColor("#f6f7fb"));
+    p.setColor(QPalette::Base,   QColor("#ffffff"));
     p.setColor(QPalette::WindowText, Qt::black);
     p.setColor(QPalette::Text,       Qt::black);
     p.setColor(QPalette::ButtonText, Qt::black);
@@ -233,7 +232,6 @@ void MainWindow::applyPalette() {
 
 
 void MainWindow::reload() {
-    // тимчасово вимкнемо промальовку
     m_active->setUpdatesEnabled(false);
     m_archived->setUpdatesEnabled(false);
 
@@ -254,7 +252,6 @@ void MainWindow::reload() {
 
     m_archiveArea->setVisible(archCnt > 0);
 
-    // висота контенту списків (без контейнерів)
     auto contentH = [](QListWidget* w) -> int {
         int n = w->count();
         if (!n) return 0;
@@ -265,16 +262,13 @@ void MainWindow::reload() {
     m_active->setFixedHeight(contentH(m_active));
     m_archived->setFixedHeight(contentH(m_archived));
 
-    // КЛЮЧ: хто забирає надлишок висоти
     if (auto* root = qobject_cast<QVBoxLayout*>(centralWidget()->layout())) {
         if (archCnt > 0) {
-            // є архів → тягнемо сірий низ, щоб не було білої смужки
             m_archiveArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
             m_activeArea ->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
             root->setStretchFactor(m_activeArea, 0);
             root->setStretchFactor(m_archiveArea, 1);
         } else {
-            // архів порожній → тягнеться біла активна секція
             m_archiveArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
             m_activeArea ->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
             root->setStretchFactor(m_activeArea, 1);
@@ -293,7 +287,7 @@ void MainWindow::reload() {
 bool MainWindow::nativeEvent(const QByteArray& type, void* msg, qintptr* result) {
     MSG* m = static_cast<MSG*>(msg);
     if (m->message == WM_NCHITTEST) {
-        const int bw = 6; // товщина активної зони для resize
+        const int bw = 6;
 
         const int x = static_cast<int>(static_cast<short>(LOWORD(m->lParam)));
         const int y = static_cast<int>(static_cast<short>(HIWORD(m->lParam)));
@@ -304,7 +298,6 @@ bool MainWindow::nativeEvent(const QByteArray& type, void* msg, qintptr* result)
         const bool canW = minimumWidth()  != maximumWidth();
         const bool canH = minimumHeight() != maximumHeight();
 
-        // --- ресайз по краях/кутам ---
         if (canW && x >= L && x < L + bw) {
             if (canH && y >= T && y < T + bw)   { *result = HTTOPLEFT;     return true; }
             if (canH && y <= B && y > B - bw)   { *result = HTBOTTOMLEFT;  return true; }
@@ -318,7 +311,6 @@ bool MainWindow::nativeEvent(const QByteArray& type, void* msg, qintptr* result)
         if (canH && y >= T && y < T + bw)       { *result = HTTOP;    return true; }
         if (canH && y <= B && y > B - bw)       { *result = HTBOTTOM; return true; }
 
-        // --- перетягування за смужку, але НЕ по кнопках ---
         const QPoint local = mapFromGlobal(QPoint(x, y));
 
         auto containsOnMain = [&](QWidget* w)->bool {
@@ -328,7 +320,6 @@ bool MainWindow::nativeEvent(const QByteArray& type, void* msg, qintptr* result)
         };
 
         if (m_titleBar && m_titleBar->geometry().contains(local)) {
-            // якщо під курсором одна з кнопок — віддаємо в клієнтську зону (клік спрацює)
             if (containsOnMain(m_btnMin) || containsOnMain(m_btnClose)) {
                 *result = HTCLIENT;
                 return true;
@@ -377,7 +368,6 @@ void MainWindow::onItemToggled(size_t id, bool doneChecked) {
 void MainWindow::onItemEdited(size_t id, const QString& txt) {
     m_manager.setText(id, txt.trimmed().toStdString());
     m_manager.saveTasks();
-    // без reload — локально теж ок, але для узгодженості:
     reload();
 }
 
@@ -390,7 +380,7 @@ void MainWindow::onItemArchive(size_t id) {
     Status newSt = (it->getStatus() == archived) ? toDO : archived;
     m_manager.setStatus(id, newSt);
     m_manager.saveTasks();
-    reload(); // миттєво піде в інший список/зону
+    reload();
 }
 
 

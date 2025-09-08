@@ -13,7 +13,7 @@ class TaskItemWidget : public QWidget {
 public:
     explicit TaskItemWidget(const Task& task, QWidget* parent = nullptr);
     size_t taskId() const { return m_taskId; }
-    void syncFrom(const Task& t); // оновити віджет із моделі
+    void syncFrom(const Task& t);
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
@@ -36,6 +36,6 @@ private:
     void buildUi(const Task& task);
     void applyStyle();
 
-    void styleMenu();      // стилізація QMenu (округлення + тінь)
-    void updateMenuMask(); // оновлення маски меню після Show/Resize
+    void styleMenu();
+    void updateMenuMask();
 };
